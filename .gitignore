@@ -1,0 +1,8 @@
+philo
+src/_obj
+*.o
+*.a
+*.out
+*.swp
+*.swo
+~*
