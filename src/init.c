@@ -12,16 +12,16 @@
 
 #include "philo.h"
 
-static t_fork	*init_forks(int n)
+static t_fork	*init_forks(t_data *d)
 {
 	t_fork	*forks;
 	int		i;
 
-	forks = malloc(sizeof(t_fork) * n);
+	forks = malloc(sizeof(t_fork) * d->philos_nb);
 	if (!forks)
-		return (NULL);
+		exit_philo("malloc", &d);
 	i = 0;
-	while (i < n)
+	while (i < d->philos_nb)
 	{
 		forks[i].index = i;
 		forks[i].state = F_FREE;
@@ -30,26 +30,26 @@ static t_fork	*init_forks(int n)
 	return (forks);
 }
 
-static t_philo	*init_philos(int n, t_fork *forks)
+static t_philo	*init_philos(t_data *d)
 {
 	t_philo	*philos;
 	int		i;
 	int		prev_fork_index;
 
-	philos = malloc(sizeof(t_philo) * n);
+	philos = malloc(sizeof(t_philo) * d->philos_nb);
 	if (!philos)
-		return (NULL);
+		exit_philo("malloc", &d);
 	i = 0;
-	while (i < n)
+	while (i < d->philos_nb)
 	{
 		philos[i].index = i;
 		philos[i].number = i + 1;
 		philos[i].action = A_THINKING;
-		philos[i].left_fork = &forks[i];
+		philos[i].left_fork = &d->forks[i];
 		prev_fork_index = i - 1;
 		if (prev_fork_index < 0)
-			prev_fork_index = n - 1;
-		philos[i].right_fork = &forks[prev_fork_index];
+			prev_fork_index = d->philos_nb - 1;
+		philos[i].right_fork = &d->forks[prev_fork_index];
 		i++;
 	}
 	return (philos);
@@ -57,9 +57,11 @@ static t_philo	*init_philos(int n, t_fork *forks)
 
 t_data	*init_data(char **args)
 {
-	t_data *d;
+	t_data	*d;
 
 	d = malloc(sizeof(t_data));
+	if (!d)
+		exit_philo("malloc", &d);
 	d->start_time_ms = get_current_time_ms();
 	d->forks = NULL;
 	d->philos = NULL;
@@ -70,7 +72,7 @@ t_data	*init_data(char **args)
 	d->meals_per_philo = O_NOMEALSLIMIT;
 	if (args[5])
 		d->meals_per_philo = str_to_uint(args[5], d);
-	d->forks = init_forks(d->philos_nb);
-	d->philos = init_philos(d->philos_nb, d->forks);
+	d->forks = init_forks(d);
+	d->philos = init_philos(d);
 	return (d);
 }

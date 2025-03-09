@@ -26,9 +26,9 @@ void	free_data(t_data **d)
 {
 	if (!d || !*d)
 		return ;
-	if ((*d)->forks) 
+	if ((*d)->forks)
 		ft_free((void **)&(*d)->forks);
-	if ((*d)->philos) 
+	if ((*d)->philos)
 		ft_free((void **)&(*d)->philos);
 	ft_free((void **)d);
 }

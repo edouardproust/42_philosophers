@@ -1,14 +1,33 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eproust <contact@edouardproust.dev>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/17 13:03:27 by eproust           #+#    #+#             */
+/*   Updated: 2024/12/02 05:35:44 by eproust          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "debug.h"
 
 void	debug_fork(t_fork *f)
 {
+	char	*state;
+
 	printf("- index: %d\n", f->index);
-	printf("- state: %s\n", f->state == F_FREE ? "F_FREE" : "F_TAKEN");
+	state = "F_FREE";
+	if (f->state == F_TAKEN)
+		state = "F_TAKEN";
+	printf("- state: %s\n", state);
 }
 
 void	debug_forks(t_data *d)
 {
-	int	i = 0;
+	int	i;
+
+	i = 0;
 	while (i < d->philos_nb)
 		debug_fork(&d->forks[i++]);
 }
@@ -26,13 +45,17 @@ void	debug_philo(t_philo *p)
 	printf("index: %d\n", p->index);
 	printf("number: %d\n", p->number);
 	printf("state: %s\n", action);
-	printf("left_fork:\n"); debug_fork(p->left_fork);
-	printf("right_fork:\n"); debug_fork(p->right_fork);
+	printf("left_fork:\n");
+	debug_fork(p->left_fork);
+	printf("right_fork:\n");
+	debug_fork(p->right_fork);
 }
 
 void	debug_philos(t_data *d)
 {
-	int	i = 0;
+	int	i;
+
+	i = 0;
 	while (i < d->philos_nb)
 	{
 		debug_philo(&d->philos[i++]);

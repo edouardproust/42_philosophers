@@ -86,6 +86,8 @@ typedef struct s_data
 t_data	*init_data(char **args);
 
 /* Utils */
+void	exit_philo(char *error_msg, t_data **d);
+void	exit_on_inval_arg(char *error_msg, char *wrong_arg, t_data **d);
 void	*ft_free(void **ptr);
 void	free_data(t_data **d);
 int		str_to_uint(char *str, t_data *d);

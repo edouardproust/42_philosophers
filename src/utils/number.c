@@ -17,30 +17,19 @@ static int	ft_isdigit(int c)
 	return ('0' <= c && c <= '9');
 }
 
-static t_bool is_valid_number(char *str)
+static t_bool	is_valid_number(char *str)
 {
 	if (*str == '+')
 		str++;
 	if (!ft_isdigit(*str))
-        return (FALSE);
-    while (*str)
-    {
-        if (!ft_isdigit(*str))
-            return (0);
-        str++;
-    }
-    return (TRUE);
-}
-
-static void	exit_on_inval_arg(char *error_msg, char *wrong_arg, t_data **d)
-{
-	char 	*err_prefix;
-	
-	err_prefix = "Invalid argument";
-	printf("%s: %s: %s\n", err_prefix, error_msg, wrong_arg);
-	free_data(d);
-	exit(EXIT_FAILURE);
-
+		return (FALSE);
+	while (*str)
+	{
+		if (!ft_isdigit(*str))
+			return (0);
+		str++;
+	}
+	return (TRUE);
 }
 
 int	str_to_uint(char *str, t_data *d)

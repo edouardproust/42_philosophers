@@ -10,8 +10,9 @@ C_DIR = src
 C_FILES = debug.c \
 	main.c \
 	init.c \
-	utils/number.c \
+	utils/exit.c \
 	utils/free.c \
+	utils/number.c \
 	utils/time.c \
 
 SRCS = $(addprefix $(C_DIR)/,$(C_FILES))
