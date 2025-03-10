@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "philo.h"
+#include "debug.h" //DEBUG
 
 int	main(int ac, char **av)
 {
@@ -23,7 +24,22 @@ int	main(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 	d = init_data(av);
-	// LOGIC HERE
+	/*
+	create threads (1 per philosoper)
+	create mutexes (1 per fork)
+	While (are_all_philos_alive)
+	{
+		foreach philo (= thread)
+		{
+			eat_if_forks_avail
+			sleep_after_eating
+			thinking_after_sleeping
+			die_if_starved
+		}
+	}
+	delete threads
+	delete mutexes
+	*/
 	free_data(&d);
 	return (EXIT_SUCCESS);
 }

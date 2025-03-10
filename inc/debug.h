@@ -15,7 +15,7 @@
 
 # include "philo.h"
 
-void	debug_fork(t_fork *f);
+void	debug_fork(char *title, int id, t_fork *f);
 void	debug_forks(t_data *d);
 void	debug_philo(t_philo *p);
 void	debug_philos(t_data *d);

@@ -13,9 +13,17 @@
 #include "philo.h"
 
 /**
+ * Sleep for `ms` milliseconds.
+ */
+void	wait(int ms)
+{
+	usleep(ms * 1000L);
+}
+
+/**
  * Get the current time in milliseconds.
  */
-long	get_current_time_ms(void)
+long	current_time(void)
 {
 	struct timeval	now;
 
@@ -26,10 +34,10 @@ long	get_current_time_ms(void)
 /**
  * Get the interval in milliseconds since the program started.
  */
-long	get_timestamp_ms(t_data *d)
+long	get_timestamp(t_data *d)
 {
 	long	now;
 
-	now = get_current_time_ms();
-	return (now - d->start_time_ms);
+	now = current_time();
+	return (now - d->start_time);
 }

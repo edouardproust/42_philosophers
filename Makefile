@@ -10,6 +10,8 @@ C_DIR = src
 C_FILES = debug.c \
 	main.c \
 	init.c \
+	action/action.c \
+	action/utils.c \
 	utils/exit.c \
 	utils/free.c \
 	utils/number.c \

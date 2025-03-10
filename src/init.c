@@ -25,6 +25,8 @@ static t_fork	*init_forks(t_data *d)
 	{
 		forks[i].index = i;
 		forks[i].state = F_FREE;
+		if (pthread_mutex_init(&forks[i].mutex, NULL) != 0)
+			exit_philo("pthread_mutex_init", &d); 
 		i++;
 	}
 	return (forks);
@@ -43,13 +45,15 @@ static t_philo	*init_philos(t_data *d)
 	while (i < d->philos_nb)
 	{
 		philos[i].index = i;
-		philos[i].number = i + 1;
+		philos[i].id = i + 1;
 		philos[i].action = A_THINKING;
 		philos[i].left_fork = &d->forks[i];
 		prev_fork_index = i - 1;
 		if (prev_fork_index < 0)
 			prev_fork_index = d->philos_nb - 1;
 		philos[i].right_fork = &d->forks[prev_fork_index];
+		philos[i].last_meal_time = 0;
+		philos[i].meals_done = 0;
 		i++;
 	}
 	return (philos);
@@ -62,7 +66,7 @@ t_data	*init_data(char **args)
 	d = malloc(sizeof(t_data));
 	if (!d)
 		exit_philo("malloc", &d);
-	d->start_time_ms = get_current_time_ms();
+	d->start_time = current_time();
 	d->forks = NULL;
 	d->philos = NULL;
 	d->philos_nb = str_to_uint(args[1], d);

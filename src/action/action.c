@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   number.c                                           :+:      :+:    :+:   */
+/*   action.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eproust <contact@edouardproust.dev>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,50 +12,33 @@
 
 #include "philo.h"
 
-t_bool	is_even(int nb)
+void	do_die(t_philo *philo, t_data *d)
 {
-	return (nb % 2 == 0);
+	philo->action = A_DIED;
+	put_action(philo, "died", d);
 }
 
-static int	ft_isdigit(int c)
+int	do_eat(t_philo *philo, t_data *d)
 {
-	return ('0' <= c && c <= '9');
+	if (take_forks(philo) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
+	philo->action = A_EATING;
+	philo->last_meal_time = get_timestamp(d);
+	put_action(philo, "is eating", d);
+	wait(d->eat_time);
+	drop_forks(philo);
+	return (EXIT_SUCCESS);
 }
 
-static t_bool	is_valid_number(char *str)
+void	do_sleep(t_philo *philo, t_data *d)
 {
-	if (*str == '+')
-		str++;
-	if (!ft_isdigit(*str))
-		return (FALSE);
-	while (*str)
-	{
-		if (!ft_isdigit(*str))
-			return (0);
-		str++;
-	}
-	return (TRUE);
+	philo->action = A_SLEEPING;
+	put_action(philo, "is sleeping", d);
+	wait(d->sleep_time);
 }
 
-int	str_to_uint(char *str, t_data *d)
+void	do_think(t_philo *philo, t_data *d)
 {
-	long	res;
-	int		i;
-
-	i = 0;
-	if (str[i] == '-')
-		exit_on_inval_arg("signed number", str, &d);
-	if (!is_valid_number(str))
-		exit_on_inval_arg("not a number", str, &d);
-	if (str[i] == '+')
-		i++;
-	res = 0;
-	while (ft_isdigit(str[i]))
-	{
-		res = res * 10 + str[i] - '0';
-		i++;
-	}
-	if (res > INT_MAX)
-		exit_on_inval_arg("int overflow", str, &d);
-	return (res);
+	philo->action = A_THINKING;
+	put_action(philo, "is thinking", d);
 }
