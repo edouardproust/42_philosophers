@@ -1,0 +1,9 @@
+philo
+src/_obj
+.vscode
+*.o
+*.a
+*.out
+*.swp
+*.swo
+~*
