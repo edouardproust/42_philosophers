@@ -12,9 +12,9 @@
 
 #include "philo.h"
 
-void	exit_philo(char *error_msg, t_data **d)
+void	exit_program(char *error_msg, t_data **d)
 {
-	printf("philo: %s error\n", error_msg);
+	printf("philo: %s\n", error_msg);
 	free_forks(&(*d)->forks);
 	free_philos(&(*d)->philos);
 	free_data(d);

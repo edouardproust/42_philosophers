@@ -12,34 +12,28 @@
 
 #include "philo.h"
 
-void	do_die(t_philo *philo)
+void	do_eat(t_philo *philo)
 {
-	philo->action = A_DIED;
-	put_action(philo, "died", A_DIED);
-}
-
-int	do_eat(t_philo *philo)
-{
-	if (take_forks(philo) != EXIT_SUCCESS)
-		return (EXIT_FAILURE);
-	philo->action = A_EATING;
+	take_forks(philo);
 	philo->last_meal_time = get_timestamp(philo->data);
-	put_action(philo, "is eating", A_EATING);
+	put_action(EAT, philo);
 	wait(philo->data->eat_time);
 	release_forks(philo);
 	philo->meals_done++;
-	return (EXIT_SUCCESS);
 }
 
 void	do_sleep(t_philo *philo)
 {
-	philo->action = A_SLEEPING;
-	put_action(philo, "is sleeping", A_SLEEPING);
+	put_action(SLEEP, philo);
 	wait(philo->data->sleep_time);
 }
 
 void	do_think(t_philo *philo)
 {
-	philo->action = A_THINKING;
-	put_action(philo, "is thinking", A_THINKING);
+	put_action(THINK, philo);
+}
+
+void	do_die(t_philo *philo)
+{
+	put_action(DIE, philo);
 }

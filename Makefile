@@ -7,10 +7,8 @@ NAME = ./philo
 
 C_DIR = src
 
-C_FILES = debug.c \
-	main.c \
+C_FILES = main.c \
 	init.c \
-	routine/thread.c \
 	routine/routine.c \
 	routine/action.c \
 	routine/utils.c \
@@ -18,6 +16,8 @@ C_FILES = debug.c \
 	utils/free.c \
 	utils/number.c \
 	utils/time.c \
+	utils/mutex.c \
+	utils/thread.c \
 
 SRCS = $(addprefix $(C_DIR)/,$(C_FILES))
 
@@ -37,8 +37,7 @@ OBJS = $(addprefix $(O_DIR)/,$(C_FILES:.c=.o))
 
 H_DIR = inc
 
-H_FILES = debug.h \
-	philo.h \
+H_FILES = philo.h \
 
 HEADERS = $(addprefix $(H_DIR)/,$(H_FILES))
 

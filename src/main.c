@@ -12,22 +12,30 @@
 
 #include "philo.h"
 
-static t_data	*start_simulation(char **args)
+static t_data	*start_simulation(t_data *d)
 {
-	t_data	*data;
+	int		i;
 
-	data = init_data(args);
-	data->forks = init_forks(data);
-	data->philos = init_philos(data);
-	return (data);
+	// Create threads for each philo
+	// init time first meal for each philo
+	i = 0;
+	while (i < d->philos_nb)
+	{
+		create_philo_thread(&d->philos[i]);
+		d->philos[i].last_meal_time = current_time();
+		i++;
+	}
+	thread_do(CREATE, &d->monitoring, monitoring_routine, d);
+	return (d);
 }
 
-static void	stop_simulation(t_data **data)
+static void	stop_simulation(t_data **d)
 {
-	join_threads(*data);
-	free_philos(&(*data)->philos);
-	free_forks(&(*data)->forks);
-	free_data(data);
+	thread_do(JOIN, &(*d)->monitoring, NULL, *d);
+	join_philo_threads(*d);
+	free_philos(&(*d)->philos);
+	free_forks(&(*d)->forks);
+	free_data(d);
 }
 
 int	main(int ac, char **av)
@@ -40,7 +48,8 @@ int	main(int ac, char **av)
 			"sleep_time [meals_per_philosopher]\n");
 		exit(EXIT_FAILURE);
 	}
-	d = start_simulation(av);
+	d = init_data(av);
+	start_simulation(d);
 	stop_simulation(&d);
 	return (EXIT_SUCCESS);
 }

@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-t_bool	is_even(int nb)
+bool	is_even(int nb)
 {
 	return (nb % 2 == 0);
 }
@@ -22,19 +22,19 @@ static int	ft_isdigit(int c)
 	return ('0' <= c && c <= '9');
 }
 
-static t_bool	is_valid_number(char *str)
+static bool	is_valid_number(char *str)
 {
 	if (*str == '+')
 		str++;
 	if (!ft_isdigit(*str))
-		return (FALSE);
+		return (false);
 	while (*str)
 	{
 		if (!ft_isdigit(*str))
 			return (0);
 		str++;
 	}
-	return (TRUE);
+	return (true);
 }
 
 int	str_to_uint(char *str, t_data *d)

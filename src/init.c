@@ -12,6 +12,33 @@
 
 #include "philo.h"
 
+static	void assign_forks_to_philo(t_fork *forks, t_philo *philo)
+{
+	t_fork	*left_fork;
+	t_fork	*right_fork;
+
+	if (philo->index == philo->data->philos_nb - 1)
+	{
+		left_fork = &forks[0];
+		right_fork = &forks[philo->data->philos_nb - 1];
+	}
+	else
+	{
+		left_fork = &forks[philo->index];
+		right_fork = &forks[philo->index + 1];
+	}
+	if (is_even(philo->index))
+	{
+		philo->first_fork = left_fork;
+		philo->second_fork = right_fork;
+	}
+	else
+	{
+		philo->first_fork = right_fork;
+		philo->second_fork = left_fork;
+	}
+}
+
 t_fork	*init_forks(t_data *d)
 {
 	t_fork	*forks;
@@ -19,13 +46,12 @@ t_fork	*init_forks(t_data *d)
 
 	forks = malloc(sizeof(t_fork) * d->philos_nb);
 	if (!forks)
-		exit_philo("malloc", &d);
+		exit_program("malloc", &d);
 	i = 0;
 	while (i < d->philos_nb)
 	{
 		forks[i].index = i;
-		forks[i].state = F_FREE;
-		create_mutex(&forks[i].lock, d);
+		mutex_do(INIT, &forks[i].lock, d);
 		i++;
 	}
 	return (forks);
@@ -35,25 +61,19 @@ t_philo	*init_philos(t_data *d)
 {
 	t_philo	*philos;
 	int		i;
-	int		prev_fork_index;
 
 	philos = malloc(sizeof(t_philo) * d->philos_nb);
 	if (!philos)
-		exit_philo("malloc", &d);
+		exit_program("malloc", &d);
 	i = 0;
 	while (i < d->philos_nb)
 	{
-		philos[i].index = i;
 		philos[i].id = i + 1;
-		philos[i].action = A_THINKING;
-		philos[i].left_fork = &d->forks[i];
-		prev_fork_index = i - 1;
-		if (prev_fork_index < 0)
-			prev_fork_index = d->philos_nb - 1;
-		philos[i].right_fork = &d->forks[prev_fork_index];
-		philos[i].last_meal_time = current_time();
+		philos[i].last_meal_time = O_INITLATER;
 		philos[i].meals_done = 0;
-		create_thread(&philos[i]);
+		philos[i].data = d;
+		assign_forks_to_philo(d->forks, &philos[i]);
+		mutex_do(INIT, &philos[i].meal_lock, d);
 		i++;
 	}
 	return (philos);
@@ -65,7 +85,7 @@ t_data	*init_data(char **args)
 
 	d = malloc(sizeof(t_data));
 	if (!d)
-		exit_philo("malloc", &d);
+		exit_program("malloc", &d);
 	d->start_time = current_time();
 	d->forks = NULL;
 	d->philos = NULL;
@@ -76,7 +96,9 @@ t_data	*init_data(char **args)
 	d->meals_per_philo = O_NOMEALSLIMIT;
 	if (args[5])
 		d->meals_per_philo = str_to_uint(args[5], d);
-	create_mutex(&d->death_lock, d);
-	create_mutex(&d->print_lock, d);
+	d->forks = init_forks(d);
+	d->philos = init_philos(d);
+	mutex_do(INIT, &d->death_lock, d);
+	mutex_do(INIT, &d->print_lock, d);
 	return (d);
 }

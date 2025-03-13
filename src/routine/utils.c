@@ -12,58 +12,39 @@
 
 #include "philo.h"
 
-void put_action(t_philo *philo, char *action, int action_code)
+static void	put_action_str(t_philo *philo, char *str)
 {
-	(void)action_code;
-	pthread_mutex_lock(&philo->data->print_lock);
-	printf("%ld %d %s\n", get_timestamp(philo->data), philo->id, action);
-	pthread_mutex_unlock(&philo->data->print_lock);
+	printf("%ld %d %s\n", get_timestamp(philo->data), philo->id, str);
 }
 
-static int	take_fork(t_fork *fork)
+void put_action(int action_code, t_philo *philo)
 {
-	pthread_mutex_lock(&fork->lock);
-	if (fork->state == F_FREE)
-	{
-		fork->state = F_TAKEN;
-		pthread_mutex_unlock(&fork->lock);
-		return (EXIT_SUCCESS);
-	}
-	pthread_mutex_unlock(&fork->lock);
-	return (EXIT_FAILURE);
+	mutex_do(LOCK, &philo->data->print_lock, philo->data);
+	if (action_code == TAKE_FORK)
+		put_action_str(philo, "has taken a fork");
+	else if (action_code == EAT)
+		put_action_str(philo, "is eating");
+		else if (action_code == SLEEP)
+		put_action_str(philo, "is sleeping");
+	else if (action_code == THINK)
+		put_action_str(philo, "is thinking");
+	else if (action_code == DIE)
+		put_action_str(philo, "died");
+	else
+		exit_program("put_action: wrong action_code", &philo->data);
+	mutex_do(UNLOCK, &philo->data->print_lock, philo->data);
 }
 
-static void	release_fork(t_fork *fork)
+void	take_forks(t_philo *philo)
 {
-	pthread_mutex_lock(&fork->lock);
-	fork->state = F_FREE;
-	pthread_mutex_unlock(&fork->lock);
-}
-
-int	take_forks(t_philo *philo)
-{
-	t_fork	*fork1;
-	t_fork	*fork2;
-
-	fork1 = philo->right_fork;
-	fork2 = philo->left_fork;
-	if (is_even(philo->index))
-	{
-		fork1 = philo->left_fork;
-		fork2 = philo->right_fork;
-	}
-	if (take_fork(fork1) != EXIT_SUCCESS)
-		return (EXIT_FAILURE);
-	if (take_fork(fork2) != EXIT_SUCCESS)
-	{
-		release_fork(fork1);
-		return (EXIT_FAILURE);
-	}
-	return (EXIT_SUCCESS);
+	mutex_do(LOCK, &philo->first_fork->lock, philo->data);
+	put_action(TAKE_FORK, philo);
+	mutex_do(LOCK, &philo->second_fork->lock, philo->data);
+	put_action(TAKE_FORK, philo);
 }
 
 void	release_forks(t_philo *philo)
 {
-	release_fork(philo->right_fork);
-	release_fork(philo->left_fork);
+	mutex_do(UNLOCK, &philo->first_fork->lock, philo->data);
+	mutex_do(UNLOCK, &philo->second_fork->lock, philo->data);
 }
