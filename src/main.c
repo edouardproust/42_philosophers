@@ -16,23 +16,19 @@ static t_data	*start_simulation(t_data *d)
 {
 	int		i;
 
-	// Create threads for each philo
-	// init time first meal for each philo
 	i = 0;
-	while (i < d->philos_nb)
-	{
-		create_philo_thread(&d->philos[i]);
-		d->philos[i].last_meal_time = current_time();
-		i++;
-	}
 	thread_do(CREATE, &d->monitoring, monitoring_routine, d);
+	while (i < d->philos_nb)
+		create_philo_thread(&d->philos[i++], philosopher_routine);
+	set_long(&d->start_time, current_time_us(d), &d->lock, d);
 	return (d);
 }
 
 static void	stop_simulation(t_data **d)
 {
-	thread_do(JOIN, &(*d)->monitoring, NULL, *d);
 	join_philo_threads(*d);
+	thread_do(JOIN, &(*d)->monitoring, NULL, *d);
+	destroy_mutexes(*d);
 	free_philos(&(*d)->philos);
 	free_forks(&(*d)->forks);
 	free_data(d);

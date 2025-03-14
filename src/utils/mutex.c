@@ -12,17 +12,12 @@
 
 #include "philo.h"
 
-static void	handle_mutex_error(int status, t_mutexop op, t_data *d)
+static void	handle_mutex_error(int status, t_data *d)
 {
 	if (status == EXIT_SUCCESS)
 		return ;
 	else if (status == EINVAL)
-	{
-		if (op == INIT)
-			exit_program("mutex: init: invalid mutex pointer", &d);
-		else
-			exit_program("mutex: invalid attribute", &d);
-	}
+		exit_program("mutex: invalid mutex pointer", &d);
 	else if (status == EDEADLK)
 		exit_program("mutex: deadlock", &d);
 	else if (status == EPERM)
@@ -36,13 +31,13 @@ static void	handle_mutex_error(int status, t_mutexop op, t_data *d)
 void	mutex_do(t_mutexop op, t_mutex *mutex, t_data *d)
 {
 	if (op == INIT)
-		handle_mutex_error(pthread_mutex_init(mutex, NULL), op, d);
+		handle_mutex_error(pthread_mutex_init(mutex, NULL), d);
 	else if (op == LOCK)
-		handle_mutex_error(pthread_mutex_lock(mutex), op, d);
+		handle_mutex_error(pthread_mutex_lock(mutex), d);
 	else if (op == UNLOCK)
-		handle_mutex_error(pthread_mutex_unlock(mutex), op, d);
+		handle_mutex_error(pthread_mutex_unlock(mutex), d);
 	else if (op == DESTROY)
-		handle_mutex_error(pthread_mutex_destroy(mutex), op, d);
+		handle_mutex_error(pthread_mutex_destroy(mutex), d);
 	else
 		exit_program("mutex_do: invalid op argument", &d);
 }
@@ -55,8 +50,9 @@ void	destroy_mutexes(t_data *d)
 	while (i < d->philos_nb)
 	{
 		pthread_mutex_destroy(&(d->forks[i]).lock);
+		pthread_mutex_destroy(&(d->philos[i]).lock);
 		i++;
 	}
-	pthread_mutex_destroy(&d->death_lock);
+	pthread_mutex_destroy(&d->lock);
 	pthread_mutex_destroy(&d->print_lock);
 }

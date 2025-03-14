@@ -14,7 +14,7 @@
 
 static void	put_action_str(t_philo *philo, char *str)
 {
-	printf("%ld %d %s\n", get_timestamp(philo->data), philo->id, str);
+	printf("%ld %d %s\n", get_timestamp_ms(philo->data), philo->id, str);
 }
 
 void put_action(int action_code, t_philo *philo)

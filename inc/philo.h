@@ -26,8 +26,9 @@
 /* Defines & Enums                      */
 /****************************************/
 
+# define FOO 1337
+# define O_NOTINITYET -1
 # define O_NOMEALSLIMIT -1
-# define O_INITLATER -2
 
 typedef enum e_mutexop
 {
@@ -78,21 +79,22 @@ typedef struct s_philo
 	int			meals_done;
 	t_data		*data;
 	t_thread	thread;
-	t_mutex		meal_lock;
+	t_mutex		lock;
 }	t_philo;
 
 typedef struct s_data
 {
 	int			philos_nb;
-	int			eat_time;
-	int			sleep_time;
-	int			starve_time;
+	int			time_to_die;
+	int			time_to_eat;
+	int			time_to_sleep;
 	int			meals_per_philo;
 	t_philo		*philos;
 	t_fork		*forks;
+	long		philos_ready;
 	long		start_time;
-	bool		death;
-	t_mutex		death_lock;
+	bool		simulation_end;
+	t_mutex		lock;
 	t_mutex		print_lock;
 	t_thread	monitoring;
 }	t_data;
@@ -117,7 +119,7 @@ void	release_forks(t_philo *philo);
 void	put_action(int action_code, t_philo *philo);
 
 /* Threads */
-void	create_philo_thread(t_philo *philo);
+void	create_philo_thread(t_philo *philo, void *(*routine_fn)(void *));
 void	thread_do(t_threadop op, pthread_t *thread, void *(*fn)(void *),
 			t_data *d);
 void	join_philo_threads(t_data *d);
@@ -127,12 +129,13 @@ void	mutex_do(t_mutexop op, t_mutex *mutex, t_data *d);
 void	destroy_mutexes(t_data *d);
 
 /* Time */
-void	wait(int ms);
-long	current_time(void);
-long	get_timestamp(t_data *d);
+void	wait_us(long time, t_data *d);
+long	current_time_us(t_data *d);
+long	get_timestamp_ms(t_data *d);
 
 /* Exit */
 void	exit_program(char *error_msg, t_data **d);
+void	exit_program_init(char *error_msg, t_data **d);
 void	exit_on_inval_arg(char *error_msg, char *wrong_arg, t_data **d);
 
 /* Free */
@@ -140,6 +143,12 @@ void	*ft_free(void **ptr);
 void	free_philos(t_philo **philos);
 void	free_forks(t_fork **forks);
 void	free_data(t_data **data);
+
+/* Getters & setters */
+long	get_long(long *value, t_mutex *mutex, t_data *d);
+void	set_long(long *dest, long value, t_mutex *mutex, t_data *d);
+bool	get_bool(bool *value, t_mutex *mutex, t_data *d);
+void	set_bool(bool *dest, bool value, t_mutex *mutex, t_data *d);
 
 /* Utils */
 bool	is_even(int nb);

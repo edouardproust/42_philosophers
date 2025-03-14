@@ -15,9 +15,9 @@
 void	do_eat(t_philo *philo)
 {
 	take_forks(philo);
-	philo->last_meal_time = get_timestamp(philo->data);
+	philo->last_meal_time = current_time_us(philo->data);
 	put_action(EAT, philo);
-	wait(philo->data->eat_time);
+	wait_us(philo->data->time_to_eat, philo->data);
 	release_forks(philo);
 	philo->meals_done++;
 }
@@ -25,7 +25,7 @@ void	do_eat(t_philo *philo)
 void	do_sleep(t_philo *philo)
 {
 	put_action(SLEEP, philo);
-	wait(philo->data->sleep_time);
+	wait_us(philo->data->time_to_sleep, philo->data);
 }
 
 void	do_think(t_philo *philo)

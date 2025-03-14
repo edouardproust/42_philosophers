@@ -18,6 +18,7 @@ C_FILES = main.c \
 	utils/time.c \
 	utils/mutex.c \
 	utils/thread.c \
+	utils/get_set.c \
 
 SRCS = $(addprefix $(C_DIR)/,$(C_FILES))
 

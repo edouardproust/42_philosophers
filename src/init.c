@@ -68,12 +68,13 @@ t_philo	*init_philos(t_data *d)
 	i = 0;
 	while (i < d->philos_nb)
 	{
+		mutex_do(INIT, &philos[i].lock, d);
+		philos[i].index = i;
 		philos[i].id = i + 1;
-		philos[i].last_meal_time = O_INITLATER;
+		set_long(&philos[i].last_meal_time, O_NOTINITYET , &philos[i].lock, d);
 		philos[i].meals_done = 0;
 		philos[i].data = d;
 		assign_forks_to_philo(d->forks, &philos[i]);
-		mutex_do(INIT, &philos[i].meal_lock, d);
 		i++;
 	}
 	return (philos);
@@ -85,20 +86,19 @@ t_data	*init_data(char **args)
 
 	d = malloc(sizeof(t_data));
 	if (!d)
-		exit_program("malloc", &d);
-	d->start_time = current_time();
-	d->forks = NULL;
-	d->philos = NULL;
+		exit_program_init("malloc", &d);
+	mutex_do(INIT, &d->lock, d);
+	mutex_do(INIT, &d->print_lock, d);
 	d->philos_nb = str_to_uint(args[1], d);
-	d->eat_time = str_to_uint(args[2], d);
-	d->sleep_time = str_to_uint(args[3], d);
-	d->starve_time = str_to_uint(args[4], d);
+	d->time_to_die = str_to_uint(args[4], d) * 1000;
+	d->time_to_eat = str_to_uint(args[2], d) * 1000;
+	d->time_to_sleep = str_to_uint(args[3], d) * 1000;
 	d->meals_per_philo = O_NOMEALSLIMIT;
 	if (args[5])
 		d->meals_per_philo = str_to_uint(args[5], d);
+	set_long(&d->philos_ready, 0, &d->lock, d);
+	set_long(&d->start_time, O_NOTINITYET, &d->lock, d);
 	d->forks = init_forks(d);
 	d->philos = init_philos(d);
-	mutex_do(INIT, &d->death_lock, d);
-	mutex_do(INIT, &d->print_lock, d);
 	return (d);
 }

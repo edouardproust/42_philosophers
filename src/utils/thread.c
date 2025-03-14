@@ -33,11 +33,11 @@ static void	handle_thread_error(int status, t_threadop op, t_data *d)
 		exit_program("thread: deadlock or thread loop", &d);
 }
 
-void	create_philo_thread(t_philo *philo)
+void	create_philo_thread(t_philo *philo, void *(*routine_fn)(void *))
 {
 	int	status;
 
-	status = pthread_create(&philo->thread, NULL, philosopher_routine, philo);
+	status = pthread_create(&philo->thread, NULL, routine_fn, philo);
 	handle_thread_error(status, CREATE, philo->data);
 }
 
@@ -64,5 +64,7 @@ void	join_philo_threads(t_data *d)
 	{
 		status = pthread_join(d->philos[i].thread, NULL);
 		handle_thread_error(status, JOIN, d);
+		printf("%ld 🔵 philo %d: end 🏁\n", get_timestamp_ms(d), d->philos[i].id); //DEBUG
+		i++;
 	}
 }

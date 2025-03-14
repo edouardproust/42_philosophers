@@ -12,24 +12,47 @@
 
 #include "philo.h"
 
+void	wait_simulation_started(t_philo *philo)
+{
+	t_data	*d;
+	long	philos_ready;
+
+	d = philo->data;
+	printf("%ld 🔵 philo %d: thread created (wait) ⌛\n", get_timestamp_ms(d), philo->id); //DEBUG
+	while (get_long(&d->start_time, &d->lock, d) == O_NOTINITYET)
+		wait_us(1, d);
+	printf("%ld 🔵 philo %d: started routine 🏳️\n", get_timestamp_ms(d), philo->id); //DEBUG
+	philos_ready = get_long(&d->philos_ready, &d->lock, d);
+	set_long(&d->philos_ready, philos_ready + 1, &d->lock, d);
+	printf("%ld 🔵 philo %d: philos ready:%ld\n", get_timestamp_ms(d), philo->id, philos_ready + 1); //DEBUG
+}
+
 void    *philosopher_routine(void *philo_ptr)
 {
 	t_philo *philo;
+	t_data 	*d;
 
 	philo = (t_philo *)philo_ptr;
-	printf("[routine started by philo %d]\n", philo->id); //DEBUG
-	wait(philo->id * 1000);//DEBUG
-	printf("[%ld] philo %d: end\n", get_timestamp(philo->data), philo->id); //DEBUG
+	wait_simulation_started(philo);
+	d = philo->data;
+	set_long(&philo->last_meal_time, current_time_us(d), &philo->lock, d);
+	wait_us(philo->id * 1000000, d);//DEBUG
 	return (NULL);
+}
+
+static void	wait_all_philos_ready(t_data *d)
+{
+	printf("%ld 🔵 monitoring: thread created (wait) ⌛\n", get_timestamp_ms(d)); //DEBUG
+	while (get_long(&d->philos_ready, &d->lock, d) != d->philos_nb)
+		wait_us(1, d);
+	printf("%ld 🔵 monitoring: started routine 🏳️\n", get_timestamp_ms(d)); //DEBUG
 }
 
 void    *monitoring_routine(void *data_ptr)
 {
-	t_data	*data;
+	t_data	*d;
 
-	data = (t_data *)data_ptr;
-	(void)data; //TODO remove
-	printf("[monitoring routine started]\n"); //DEBUG
-	//TODO
+	d = (t_data *)data_ptr;
+	wait_all_philos_ready(d);
 	return (NULL);
 }
