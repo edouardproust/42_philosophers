@@ -45,7 +45,6 @@ void	*monitoring_routine(void *data_ptr)
 	int		i;
 
 	d = (t_data *)data_ptr;
-	wait_all_philos_ready(d);
 	while (!simulation_finished(d))
 	{
 		i = 0;

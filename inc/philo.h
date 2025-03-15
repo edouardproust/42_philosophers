@@ -64,7 +64,15 @@ typedef enum e_timeunit
 {
 	MS,
 	US,
-} t_timeunit;
+}	t_timeunit;
+
+typedef enum e_debugop
+{
+	PHILO_CREATED,
+	PHILO_STARTED,
+	MONIT_CREATED,
+	MONIT_STARTED,
+}	t_debugop;
 
 /****************************************/
 /* Structs                              */
@@ -105,7 +113,6 @@ typedef struct s_data
 	int			meals_per_philo;
 	t_philo		*philos;
 	t_fork		*forks;
-	int			philos_ready;
 	long		start_time;
 	bool		stop_simulation;
 	t_mutex		lock;
@@ -123,7 +130,6 @@ t_data	*init_data(char **args);
 void	*philosopher_routine(void *philo_ptr);
 void	*monitoring_routine(void *data_ptr);
 void	wait_simulation_started(t_philo *philo);
-void	wait_all_philos_ready(t_data *d);
 bool	philo_starved(t_philo *philo);
 bool	all_philos_finished_meals(t_data *d);
 bool	simulation_finished(t_data *data);

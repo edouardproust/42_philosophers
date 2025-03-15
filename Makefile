@@ -10,7 +10,8 @@ C_DIR = src
 C_FILES = main.c \
 	init.c \
 	routine/routine.c \
-	routine/routine_utils.c \
+	routine/routine_state.c \
+	routine/routine_wait.c \
 	routine/action.c \
 	routine/action_put.c \
 	routine/action_utils.c \

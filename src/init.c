@@ -87,7 +87,6 @@ t_data	*init_data(char **args)
 	d->meals_per_philo = O_NOMEALSLIMIT;
 	if (args[5])
 		d->meals_per_philo = str_to_uint(args[5], d);
-	set_int(&d->philos_ready, 0, &d->lock, d);
 	set_long(&d->start_time, O_NOTINITYET, &d->lock, d);
 	d->forks = init_forks(d);
 	d->philos = init_philos(d);

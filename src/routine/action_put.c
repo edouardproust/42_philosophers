@@ -12,19 +12,32 @@
 
 #include "philo.h"
 
+static void	do_put_eat_debug(long tp, int id, t_philo *p)
+{
+	int	meals_done;
+
+	printf("%ld\t" BLUE "%d is eating 🍝" RST " (meal %d | "
+		"last %ld ms ago)", tp, id, get_int(&p->meals_done,
+			&p->lock, p->data), time_since_last_meal(p, MS));
+	meals_done = get_int(&p->meals_done, &p->lock, p->data);
+	if (meals_done == p->data->meals_per_philo)
+		printf(" ✅");
+	printf("\n");
+}
+
 static int	do_put_action_debug(int action_code, long tp, t_philo *p)
 {
 	int		id;
 
 	id = p->id;
 	if (action_code == TAKE_FIRST_FORK)
-		printf("%ld\t%d took first fork (#%d)\n", tp, id, p->first_fork->index);
+		printf("%ld\t%d took first fork (#%d)\n", tp, id,
+			p->first_fork->index);
 	else if (action_code == TAKE_SECOND_FORK)
-		printf("%ld\t%d took second fork (#%d)\n", tp, id, p->second_fork->index);
+		printf("%ld\t%d took second fork (#%d)\n", tp, id,
+			p->second_fork->index);
 	else if (action_code == EAT)
-		printf("%ld\t" BLUE "%d is eating 🍝" RST " (meal %d | last %ld ms ago)\n",
-			tp, id, get_int(&p->meals_done, &p->lock, p->data),
-			time_since_last_meal(p, MS));
+		do_put_eat_debug(tp, id, p);
 	else if (action_code == SLEEP)
 		printf("%ld\t%d is sleeping (meal %ld ms ago)\n", tp, id,
 			time_since_last_meal(p, MS));

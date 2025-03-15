@@ -12,39 +12,6 @@
 
 #include "philo.h"
 
-void	wait_simulation_started(t_philo *philo)
-{
-	t_data	*d;
-	long	philos_ready;
-
-	d = philo->data;
-	if (DEBUG_MODE)
-		printf("%ld\t%d thread created 🟡\n",
-			get_timestamp_ms(d), philo->id);
-	while (get_long(&d->start_time, &d->lock, d) == O_NOTINITYET)
-		wait(1, d);
-	if (DEBUG_MODE)
-		printf("%ld\t%d started routine 🟢\n",
-			get_timestamp_ms(d), philo->id);
-	philos_ready = get_int(&d->philos_ready, &d->lock, d);
-	set_int(&d->philos_ready, philos_ready + 1, &d->lock, d);
-	if (DEBUG_MODE)
-		printf("%ld\t%d philos ready: %ld 🟠\n",
-			get_timestamp_ms(d), philo->id, philos_ready + 1);
-}
-
-void	wait_all_philos_ready(t_data *d)
-{
-	if (DEBUG_MODE)
-		printf("%ld\tmonitoring thread created 🟤\n",
-			get_timestamp_ms(d));
-	while (get_int(&d->philos_ready, &d->lock, d) != d->philos_nb)
-		wait(1, d);
-	if (DEBUG_MODE)
-		printf("%ld\tmonitoring started routine 🔵\n",
-			get_timestamp_ms(d));
-}
-
 bool	all_philos_finished_meals(t_data *d)
 {
 	int		i;
