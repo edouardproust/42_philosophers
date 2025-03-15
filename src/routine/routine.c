@@ -12,10 +12,10 @@
 
 #include "philo.h"
 
-void    *philosopher_routine(void *philo_ptr)
+void	*philosopher_routine(void *philo_ptr)
 {
-	t_philo *philo;
-	t_data 	*d;
+	t_philo	*philo;
+	t_data	*d;
 
 	philo = (t_philo *)philo_ptr;
 	wait_simulation_started(philo);
@@ -23,11 +23,11 @@ void    *philosopher_routine(void *philo_ptr)
 	set_long(&philo->last_meal_time, current_time_us(d), &philo->lock, d);
 	if (d->philos_nb == 1)
 		put_action(TAKE_FIRST_FORK, philo);
-	while(!simulation_finished(philo->data))
+	while (!simulation_finished(philo->data))
 	{
 		if (d->philos_nb > 1)
 		{
-			if (philo->meals_done > 0)
+			if (!is_even(d->philos_nb) && philo->meals_done > 0)
 				wait_philo_turn(philo);
 			do_eat(philo);
 			do_sleep(philo);
@@ -38,7 +38,7 @@ void    *philosopher_routine(void *philo_ptr)
 	return (NULL);
 }
 
-void    *monitoring_routine(void *data_ptr)
+void	*monitoring_routine(void *data_ptr)
 {
 	t_data	*d;
 	t_philo	*philo;
@@ -52,12 +52,13 @@ void    *monitoring_routine(void *data_ptr)
 		while (i < d->philos_nb)
 		{
 			philo = &d->philos[i];
-			if (all_meals_done(d) || philo_starved(philo))
+			if (all_philos_finished_meals(d) || philo_starved(philo))
 			{
 				set_bool(&d->stop_simulation, true, &d->lock, d);
 				break ;
 			}
-			update_priority(&d->philos[i]);
+			if (!is_even(d->philos_nb))
+				update_priority(&d->philos[i]);
 			i++;
 		}
 		wait(10, d);

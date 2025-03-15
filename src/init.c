@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-static	void assign_forks_to_philo(t_fork *forks, t_philo *philo)
+static void	assign_forks_to_philo(t_fork *forks, t_philo *philo)
 {
 	int	forks_nb;
 
@@ -60,9 +60,10 @@ t_philo	*init_philos(t_data *d)
 		philos[i].index = i;
 		philos[i].id = i + 1;
 		philos[i].data = d;
-		set_long(&philos[i].last_meal_time, O_NOTINITYET , &philos[i].lock, d);
-		set_long(&philos[i].meals_done, 0, &philos[i].lock, d);
-		set_long(&philos[i].priority, O_NOTINITYET, &philos[i].priority_lock, d);
+		set_long(&philos[i].last_meal_time, O_NOTINITYET, &philos[i].lock, d);
+		set_int(&philos[i].meals_done, 0, &philos[i].lock, d);
+		set_long(&philos[i].priority, O_NOTINITYET, &philos[i].priority_lock,
+			d);
 		assign_forks_to_philo(d->forks, &philos[i]);
 		i++;
 	}
@@ -86,7 +87,7 @@ t_data	*init_data(char **args)
 	d->meals_per_philo = O_NOMEALSLIMIT;
 	if (args[5])
 		d->meals_per_philo = str_to_uint(args[5], d);
-	set_long(&d->philos_ready, 0, &d->lock, d);
+	set_int(&d->philos_ready, 0, &d->lock, d);
 	set_long(&d->start_time, O_NOTINITYET, &d->lock, d);
 	d->forks = init_forks(d);
 	d->philos = init_philos(d);

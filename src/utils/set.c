@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   set_get.c                                          :+:      :+:    :+:   */
+/*   set.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eproust <contact@edouardproust.dev>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -13,16 +13,13 @@
 #include "philo.h"
 
 /**
- * Get the value of a long protected by a mutex.
+ * Set the value of a long protected by a mutex.
  */
-long	get_long(long *value, t_mutex *mutex, t_data *d)
+void	set_int(int *dest, int value, t_mutex *mutex, t_data *d)
 {
-	long ret;
-
 	mutex_do(LOCK, mutex, d);
-	ret = *value;
+	*dest = value;
 	mutex_do(UNLOCK, mutex, d);
-	return (ret);
 }
 
 /**
@@ -33,19 +30,6 @@ void	set_long(long *dest, long value, t_mutex *mutex, t_data *d)
 	mutex_do(LOCK, mutex, d);
 	*dest = value;
 	mutex_do(UNLOCK, mutex, d);
-}
-
-/**
- * Get the value of a bool protected by a mutex.
- */
-bool	get_bool(bool *value, t_mutex *mutex, t_data *d)
-{
-	bool ret;
-
-	mutex_do(LOCK, mutex, d);
-	ret = *value;
-	mutex_do(UNLOCK, mutex, d);
-	return (ret);
 }
 
 /**
