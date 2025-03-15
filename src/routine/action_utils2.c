@@ -12,6 +12,16 @@
 
 #include "philo.h"
 
+long	time_since_last_meal(t_philo *philo)
+{
+	t_data	*d;
+	long	last_meal_time;
+
+	d = philo->data;
+	last_meal_time = get_long(&philo->last_meal_time, &philo->lock, d);
+	return ((current_time_us(philo->data) - last_meal_time) / 1000);
+}
+
 static void	put_action_str(t_philo *philo, char *str, char *color)
 {
 	if (color == NULL)
@@ -27,14 +37,12 @@ static void put_action_debug(int action_code, t_philo *p)
 	long	tp;
 	int		id;
 	t_data	*d;
-	long	lmt;
 	long	lmd;
 
 	tp = get_timestamp_ms(p->data);
 	id = p->id;
 	d = p->data;
-	lmt = get_long(&p->last_meal_time, &p->lock, d);
-	lmd = (current_time_us(d) - lmt) / 1000;
+	lmd = time_since_last_meal(p);
 	mutex_do(LOCK, &d->print_lock, d);
 	if (action_code == TAKE_FIRST_FORK)
 		printf("%ld\t%d took first fork (#%d)\n", tp, id, p->first_fork->index);
@@ -49,7 +57,7 @@ static void put_action_debug(int action_code, t_philo *p)
 		printf("%ld\t%d is thinking (meal %ld ms ago)\n", tp, id, lmd);
 	else if (action_code == DIE)
 		printf("%ld\t%d died 💀 (meal %ld us ago)\n", tp, id,
-			(current_time_us(d) - lmt));
+			current_time_us(d) - get_long(&p->last_meal_time, &p->lock, d));
 	else
 		exit_program("put_action: wrong action_code", &d);
 	mutex_do(UNLOCK, &d->print_lock, d);

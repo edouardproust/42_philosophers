@@ -19,7 +19,7 @@
 # include <unistd.h> // write, usleep
 # include <sys/time.h> // gettimeofday
 # include <errno.h> // EAGAIN, EPERM, EINVAL,...
-# include <limits.h> // INT_MAX
+# include <limits.h> // INT_MAX, LONG_MAX
 # include <stdbool.h> // bool, true, fals
 
 /****************************************/
@@ -83,8 +83,10 @@ typedef struct s_philo
 	t_fork		*second_fork;
 	long		last_meal_time;
 	long		meals_done;
+	long		priority;
 	t_data		*data;
 	t_thread	thread;
+	t_mutex		priority_lock;
 	t_mutex		lock;
 }	t_philo;
 
@@ -130,6 +132,11 @@ void	release_forks(t_philo *philo);
 void	put_action(int action_code, t_philo *philo);
 void	wait_action(long time, t_philo *philo);
 void	increment_meals_count(t_philo *philo);
+long	time_since_last_meal(t_philo *philo);
+
+/* Fairness */
+void	wait_philo_turn(t_philo *philo);
+void	update_priority(t_philo *p);
 
 /* Threads */
 void	create_philo_thread(t_philo *philo, void *(*routine_fn)(void *));

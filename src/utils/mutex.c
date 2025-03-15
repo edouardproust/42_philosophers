@@ -49,10 +49,11 @@ void	destroy_mutexes(t_data *d)
 	i = 0;
 	while (i < d->philos_nb)
 	{
-		pthread_mutex_destroy(&(d->forks[i]).lock);
-		pthread_mutex_destroy(&(d->philos[i]).lock);
+		mutex_do(DESTROY, &d->forks[i].lock, d);
+		mutex_do(DESTROY, &d->philos[i].lock, d);
+		mutex_do(DESTROY, &d->philos[i].priority_lock, d);
 		i++;
 	}
-	pthread_mutex_destroy(&d->lock);
-	pthread_mutex_destroy(&d->print_lock);
+	mutex_do(DESTROY, &d->lock, d);
+	mutex_do(DESTROY, &d->print_lock, d);
 }

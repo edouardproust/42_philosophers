@@ -27,11 +27,13 @@ void    *philosopher_routine(void *philo_ptr)
 	{
 		if (d->philos_nb > 1)
 		{
+			if (philo->meals_done > 0)
+				wait_philo_turn(philo);
 			do_eat(philo);
 			do_sleep(philo);
 			do_think(philo);
 		}
-		wait(10, d);
+		wait_action(10, philo);
 	}
 	return (NULL);
 }
@@ -55,6 +57,7 @@ void    *monitoring_routine(void *data_ptr)
 				set_bool(&d->stop_simulation, true, &d->lock, d);
 				break ;
 			}
+			update_priority(&d->philos[i]);
 			i++;
 		}
 		wait(10, d);

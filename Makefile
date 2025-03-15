@@ -14,6 +14,7 @@ C_FILES = main.c \
 	routine/action.c \
 	routine/action_utils.c \
 	routine/action_utils2.c \
+	routine/fairness.c \
 	utils/exit.c \
 	utils/free.c \
 	utils/number.c \

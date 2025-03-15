@@ -54,11 +54,15 @@ $ valgrind --tool=helgrind ./philo 2 310 200 400
 
 **Run in DEBUG mode:**
 
-Simply set `DEBUG_MODE` to `1` in `inc/philo.h`:
+The debug mode display mode informations about the diner. To use it, simply set `DEBUG_MODE` to `1` in `inc/philo.h`:
 ```
 # define DEBUG_MODE 0 // -> Set to 1
 ```
 Save the file and recompile the program with `$ make`.
+
+**Visualize the output**
+
+Access the visualizer for the Dining Philosophers problem [here](https://nafuka11.github.io/philosophers-visualizer-v2/).
 
 ## Constraints
 

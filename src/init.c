@@ -56,11 +56,13 @@ t_philo	*init_philos(t_data *d)
 	while (i < d->philos_nb)
 	{
 		mutex_do(INIT, &philos[i].lock, d);
+		mutex_do(INIT, &philos[i].priority_lock, d);
 		philos[i].index = i;
 		philos[i].id = i + 1;
 		philos[i].data = d;
 		set_long(&philos[i].last_meal_time, O_NOTINITYET , &philos[i].lock, d);
 		set_long(&philos[i].meals_done, 0, &philos[i].lock, d);
+		set_long(&philos[i].priority, O_NOTINITYET, &philos[i].priority_lock, d);
 		assign_forks_to_philo(d->forks, &philos[i]);
 		i++;
 	}
