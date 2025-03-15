@@ -26,7 +26,7 @@
 /* Defines & Enums                     */
 /****************************************/
 
-# define DEBUG_MODE 1
+# define DEBUG_MODE 0
 # define O_NOTINITYET -1
 # define O_NOMEALSLIMIT -1
 # define FOO 1337

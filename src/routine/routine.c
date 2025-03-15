@@ -21,11 +21,17 @@ void    *philosopher_routine(void *philo_ptr)
 	wait_simulation_started(philo);
 	d = philo->data;
 	set_long(&philo->last_meal_time, current_time_us(d), &philo->lock, d);
+	if (d->philos_nb == 1)
+		put_action(TAKE_FIRST_FORK, philo);
 	while(!simulation_finished(philo->data))
 	{
-		do_eat(philo);
-		do_sleep(philo);
-		do_think(philo);
+		if (d->philos_nb > 1)
+		{
+			do_eat(philo);
+			do_sleep(philo);
+			do_think(philo);
+		}
+		wait(10, d);
 	}
 	return (NULL);
 }

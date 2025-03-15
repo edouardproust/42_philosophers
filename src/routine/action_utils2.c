@@ -48,7 +48,8 @@ static void put_action_debug(int action_code, t_philo *p)
 	else if (action_code == THINK)
 		printf("%ld\t%d is thinking (meal %ld ms ago)\n", tp, id, lmd);
 	else if (action_code == DIE)
-		printf("%ld\t%d died 💀 (meal %ld ms ago)\n", tp, id, lmd);
+		printf("%ld\t%d died 💀 (meal %ld us ago)\n", tp, id,
+			(current_time_us(d) - lmt));
 	else
 		exit_program("put_action: wrong action_code", &d);
 	mutex_do(UNLOCK, &d->print_lock, d);
