@@ -52,7 +52,7 @@ void    *monitoring_routine(void *data_ptr)
 		while (i < d->philos_nb)
 		{
 			philo = &d->philos[i];
-			if (philo_finished_meals(philo) || philo_starved(philo))
+			if (all_meals_done(d) || philo_starved(philo))
 			{
 				set_bool(&d->stop_simulation, true, &d->lock, d);
 				break ;

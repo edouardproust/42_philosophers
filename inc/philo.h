@@ -119,7 +119,7 @@ void    *monitoring_routine(void *data_ptr);
 void	wait_simulation_started(t_philo *philo);
 void	wait_all_philos_ready(t_data *d);
 bool	philo_starved(t_philo *philo);
-bool	philo_finished_meals(t_philo *philo);
+bool	all_meals_done(t_data *d);
 bool	simulation_finished(t_data *data);
 
 /* Actions */

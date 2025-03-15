@@ -32,4 +32,9 @@ void	increment_meals_count(t_philo *philo)
 
 	meals_done = get_long(&philo->meals_done, &philo->lock, philo->data);
 	set_long(&philo->meals_done, meals_done + 1, &philo->lock, philo->data);
+	if (DEBUG_MODE && (meals_done + 1 == philo->data->meals_per_philo))
+	{
+		printf("%ld\t%d finished meals ✅\n",
+			get_timestamp_ms(philo->data), philo->id);
+	}
 }

@@ -45,20 +45,33 @@ void	wait_all_philos_ready(t_data *d)
 			get_timestamp_ms(d));
 }
 
-bool	philo_finished_meals(t_philo *p)
+static bool	philo_finished_meals(t_philo *p)
 {
-	bool	ret;
+	long		meals_done;
 
-	ret = false;
-	if (get_long(&p->meals_done, &p->lock, p->data)
-		== p->data->meals_per_philo)
+	meals_done = get_long(&p->meals_done, &p->lock, p->data);
+	return (meals_done >= p->data->meals_per_philo);
+}
+
+/**
+ * Optimize to avaoid recalculating
+ */
+bool	all_meals_done(t_data *d)
+{
+	int		philos_finished;
+	int		i;
+
+	if (d->meals_per_philo == O_NOMEALSLIMIT)
+		return (false);
+	philos_finished = 0;
+	i = 0;
+	while (i < d->philos_nb)
 	{
-		ret = true;
-		if (DEBUG_MODE)
-			printf("%ld\t%d finished meals ✅\n",
-				get_timestamp_ms(p->data), p->id);
+		if (philo_finished_meals(&d->philos[i]))
+			philos_finished++;
+		i++;
 	}
-	return (ret);
+	return (philos_finished == d->philos_nb);
 }
 
 bool	philo_starved(t_philo *p)
@@ -68,6 +81,8 @@ bool	philo_starved(t_philo *p)
 	bool	ret;
 
 	last_meal_time = get_long(&p->last_meal_time, &p->lock, p->data);
+	if (last_meal_time < 0)
+		return (false);
 	since_last_meal = current_time_us(p->data) - last_meal_time;
 	ret = false;
 	if (since_last_meal > p->data->time_to_die)

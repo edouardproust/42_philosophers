@@ -6,7 +6,7 @@
 - **Location:** 42 School Barcelona
 - **Validation:** March 2025
 
-![42 philosophers](test/screenshot/philosophers_problem.png) \
+![42 philosophers](test/screenshot/philosophers_problem_42.png) \
 *If all philosophers grab a chopstick at the same time, no one gets a second one, causing a standstill. The solution? Smart rules (like taking turns or prioritizing utensils) to keep everyone fed.*
 
 ## Key Features
@@ -63,6 +63,8 @@ Save the file and recompile the program with `$ make`.
 **Visualize the output**
 
 Access the visualizer for the Dining Philosophers problem [here](https://nafuka11.github.io/philosophers-visualizer-v2/).
+
+![42 philosophers visualizer](test/screenshot/dining_philosophers_visualizer_42.png)
 
 ## Constraints
 
