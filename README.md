@@ -1,5 +1,7 @@
 # "Philosophers" Project - 42 School
 
+![42 philosophers debug mode](test/screenshot/dining_philosophers_42_log.png)
+
 **This project simulates a scenario where chinese philosophers sit around a table. Each philosopher needs *two chopsticks to eat, but there’s only one available per philosopher*. To solve this, we must design rules so they can share chopsticks efficiently, allowing everyone to take turns eating, sleeping and thinking without starving. The challenge is to keep them alive as long as possible by avoiding deadlocks and ensuring fairness!**
 
 - **Subject:** [English](./subject/en.subject.pdf) / [Spanish](./subject/es.subject.pdf)
@@ -30,8 +32,8 @@ Params:
 - `philosophers`: The number of philosophers (and also the number of chopsticks).
 - `time_to_die` (in milliseconds): If a philosopher didn’t start eating *time_to_die* milliseconds since the beginning of their last meal or the beginning of the simulation, they die.
 - `time_to_eat` (in milliseconds): The time it takes for a philosopher to eat. During that time, they will need to hold two chopsticks.
-- `time_to_sleep` (in milliseconds): The time a philosopher will spend sleeping. 
-- `meals_per_philosopher` (optional argument): The number of meals per philosopher before the simulation stops. If not specified, the simulation stops when a philosopher dies. 
+- `time_to_sleep` (in milliseconds): The time a philosopher will spend sleeping.
+- `meals_per_philosopher` (optional argument): The number of meals per philosopher before the simulation stops. If not specified, the simulation stops when a philosopher dies.
 
 Example:
 ```
@@ -39,20 +41,22 @@ $ ./philo 5 800 200 200 7
 ```
 This command will start a simulation with 5 philosophers, where each philosopher must eat 7 times before the program ends.
 
-**Stress-test (test with a fully-loaded CPU):**
+### Stress-test
+
+To test the program when the CPU is a fully-loaded, use `stress`:
 ```
 $ stress --cpu $(nproc) --timeout 60s
 $ ./philo 5 800 200 200 7
 ```
 
-**Valgrind test:**
+### Valgrind test
 
 Please note that signals handling (eg. SIGINT) is not asked for this project.
 ```
 $ valgrind --tool=helgrind ./philo 2 310 200 400
 ```
 
-**Run in DEBUG mode:**
+### Run in DEBUG mode
 
 The debug mode display mode informations about the diner. To use it, simply set `DEBUG_MODE` to `1` in `inc/philo.h`:
 ```
@@ -60,7 +64,9 @@ The debug mode display mode informations about the diner. To use it, simply set 
 ```
 Save the file and recompile the program with `$ make`.
 
-**Visualize the output**
+![42 philosophers debug mode](test/screenshot/dining_philosophers_42_debug.png)
+
+### Visualize the log
 
 Access the visualizer for the Dining Philosophers problem [here](https://nafuka11.github.io/philosophers-visualizer-v2/).
 
