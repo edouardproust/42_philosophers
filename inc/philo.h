@@ -15,104 +15,148 @@
 
 # include <stdio.h> // printf
 # include <stdlib.h> // malloc, free
-# include <string.h> // memset
+# include <pthread.h> // pthread_* functions
 # include <unistd.h> // write, usleep
 # include <sys/time.h> // gettimeofday
-# include <pthread.h> // pthread_* functions
-# include <limits.h> // INT_MAX
+# include <errno.h> // EAGAIN, EPERM, EINVAL,...
+# include <limits.h> // INT_MAX, LONG_MAX
+# include <stdbool.h> // bool, true, fals
 
 /****************************************/
-/* Defines & Enums                      */
+/* Defines & Enums                     */
 /****************************************/
 
-/* Options */
+# define DEBUG_MODE 0
+# define O_NOTINITYET -1
 # define O_NOMEALSLIMIT -1
+# define FOO 1337
 
-typedef enum e_bool
+#define BLUE "\033[34m"
+#define BOLD "\033[1m"
+#define RESET "\033[0m"
+
+typedef enum e_mutexop
 {
-	FALSE,
-	TRUE,
-}	t_bool;
+	INIT,
+	DESTROY,
+	LOCK,
+	UNLOCK,
+}	t_mutexop;
+
+typedef enum e_threadop
+{
+	CREATE,
+	JOIN,
+	DETACH,
+}	t_threadop;
 
 typedef enum e_action
 {
-	A_EATING,
-	A_SLEEPING,
-	A_THINKING,
-	A_DIED,
+	TAKE_FIRST_FORK,
+	TAKE_SECOND_FORK,
+	EAT,
+	SLEEP,
+	THINK,
+	DIE,
 }	t_action;
-
-typedef enum e_forkstate
-{
-	F_FREE,
-	F_TAKEN,
-}	t_forkstate;
 
 /****************************************/
 /* Structs                              */
 /****************************************/
 
+typedef struct s_data t_data;
+typedef unsigned int t_bool;
+typedef pthread_t t_thread;
+typedef pthread_mutex_t t_mutex;
+
 typedef struct s_fork
 {
-	int				index;
-	t_forkstate		state;
-	pthread_mutex_t	lock;
+	int		index;
+	t_mutex	lock;
 }	t_fork;
-
-typedef struct s_data t_data;
 
 typedef struct s_philo
 {
-	int				index;
-	int				id;
-	t_action		action;
-	t_fork			*right_fork;
-	t_fork			*left_fork;
-	long			last_meal_time;
-	int				meals_done;
-	pthread_t		thread;
-	t_data			*data;
+	int			index;
+	int			id;
+	t_fork		*first_fork;
+	t_fork		*second_fork;
+	long		last_meal_time;
+	long		meals_done;
+	long		priority;
+	t_data		*data;
+	t_thread	thread;
+	t_mutex		priority_lock;
+	t_mutex		lock;
 }	t_philo;
 
 typedef struct s_data
 {
 	int			philos_nb;
-	int			eat_time;
-	int			sleep_time;
-	int			starve_time;
-	int			meals_per_philo;
+	long		time_to_die;
+	long		time_to_eat;
+	long		time_to_sleep;
+	long		meals_per_philo;
 	t_philo		*philos;
 	t_fork		*forks;
+	long		philos_ready;
 	long		start_time;
-	t_bool		death;
-	pthread_mutex_t	death_lock;
-	pthread_mutex_t	print_lock;
+	bool		stop_simulation;
+	t_mutex		lock;
+	t_mutex		print_lock;
+	t_thread	monitoring;
 }	t_data;
 
 /****************************************/
 /* Functions                            */
 /****************************************/
 
-/* Init */
 t_data	*init_data(char **args);
-t_fork	*init_forks(t_data *d);
-t_philo	*init_philos(t_data *d);
 
-/* Routine */
-void    *routine_handler(void *philo_ptr);
-void	do_die(t_philo *philo);
-int		do_eat(t_philo *philo);
+/* Routines */
+void    *philosopher_routine(void *philo_ptr);
+void    *monitoring_routine(void *data_ptr);
+void	wait_simulation_started(t_philo *philo);
+void	wait_all_philos_ready(t_data *d);
+bool	philo_starved(t_philo *philo);
+bool	philo_finished_meals(t_philo *philo);
+bool	simulation_finished(t_data *data);
+
+/* Actions */
+void	do_eat(t_philo *philo);
 void	do_sleep(t_philo *philo);
 void	do_think(t_philo *philo);
-void	put_action(t_philo *philo, char *action, int action_code);
-int		take_forks(t_philo *philo);
+void	do_die(t_philo *philo);
+void	take_forks(t_philo *philo);
 void	release_forks(t_philo *philo);
+void	put_action(int action_code, t_philo *philo);
+void	wait_action(long time, t_philo *philo);
+void	increment_meals_count(t_philo *philo);
+long	time_since_last_meal(t_philo *philo);
 
-/* Thread */
-void	create_mutex(pthread_mutex_t *mutex, t_data *d);
-void	destroy_mutexes(t_data *d);
-void	create_thread(t_philo *philo);
+/* Fairness */
+void	wait_philo_turn(t_philo *philo);
+void	update_priority(t_philo *p);
+
+/* Threads */
+void	create_philo_thread(t_philo *philo, void *(*routine_fn)(void *));
+void	thread_do(t_threadop op, pthread_t *thread, void *(*fn)(void *),
+			t_data *d);
 void	join_threads(t_data *d);
+
+/* Mutex */
+void	mutex_do(t_mutexop op, t_mutex *mutex, t_data *d);
+void	destroy_mutexes(t_data *d);
+
+/* Time */
+void	wait(long time_us, t_data *d);
+long	current_time_us(t_data *d);
+long	get_timestamp_ms(t_data *d);
+
+/* Exit */
+void	exit_program(char *error_msg, t_data **d);
+void	exit_program_init(char *error_msg, t_data **d);
+void	exit_on_inval_arg(char *error_msg, char *wrong_arg, t_data **d);
 
 /* Free */
 void	*ft_free(void **ptr);
@@ -120,14 +164,14 @@ void	free_philos(t_philo **philos);
 void	free_forks(t_fork **forks);
 void	free_data(t_data **data);
 
+/* Getters & setters */
+long	get_long(long *value, t_mutex *mutex, t_data *d);
+void	set_long(long *dest, long value, t_mutex *mutex, t_data *d);
+bool	get_bool(bool *value, t_mutex *mutex, t_data *d);
+void	set_bool(bool *dest, bool value, t_mutex *mutex, t_data *d);
+
 /* Utils */
-void	exit_philo(char *error_msg, t_data **d);
-void	exit_on_inval_arg(char *error_msg, char *wrong_arg, t_data **d);
-void	free_data(t_data **d);
-t_bool	is_even(int nb);
+bool	is_even(int nb);
 int		str_to_uint(char *str, t_data *d);
-void	wait(int ms);
-long	current_time(void);
-long	get_timestamp(t_data *d);
 
 #endif

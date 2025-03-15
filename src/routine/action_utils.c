@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   thread.c                                           :+:      :+:    :+:   */
+/*   action_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eproust <contact@edouardproust.dev>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,40 +12,24 @@
 
 #include "philo.h"
 
-void	create_mutex(pthread_mutex_t *mutex, t_data *d)
+void	take_forks(t_philo *philo)
 {
-	if (pthread_mutex_init(mutex, NULL) != 0)
-		exit_philo("pthread_mutex_init", &d);
+	mutex_do(LOCK, &philo->first_fork->lock, philo->data);
+	put_action(TAKE_FIRST_FORK, philo);
+	mutex_do(LOCK, &philo->second_fork->lock, philo->data);
+	put_action(TAKE_SECOND_FORK, philo);
 }
 
-void	destroy_mutexes(t_data *d)
+void	release_forks(t_philo *philo)
 {
-	int	i;
-
-	i = 0;
-	while (i < d->philos_nb)
-	{
-		pthread_mutex_destroy(&(d->forks[i]).lock);
-		i++;
-	}
-	pthread_mutex_destroy(&d->death_lock);
-	pthread_mutex_destroy(&d->print_lock);
+	mutex_do(UNLOCK, &philo->first_fork->lock, philo->data);
+	mutex_do(UNLOCK, &philo->second_fork->lock, philo->data);
 }
 
-void	create_thread(t_philo *philo)
+void	increment_meals_count(t_philo *philo)
 {
-	if (pthread_create(&philo->thread, NULL, routine_handler, (void *)philo) != 0)
-		exit_philo("pthread_create", &philo->data);
-}
+	long	meals_done;
 
-void	join_threads(t_data *d)
-{
-	int	i;
-
-	i = 0;
-	while (i < d->philos_nb)
-	{
-		pthread_join(d->philos[i].thread, NULL);
-		i++;
-	}
+	meals_done = get_long(&philo->meals_done, &philo->lock, philo->data);
+	set_long(&philo->meals_done, meals_done + 1, &philo->lock, philo->data);
 }

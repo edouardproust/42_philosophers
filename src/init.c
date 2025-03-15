@@ -12,6 +12,20 @@
 
 #include "philo.h"
 
+static	void assign_forks_to_philo(t_fork *forks, t_philo *philo)
+{
+	int	forks_nb;
+
+	forks_nb = philo->data->philos_nb;
+	philo->first_fork = &forks[(philo->index + 1) % forks_nb];
+	philo->second_fork = &forks[philo->index];
+	if (is_even(philo->index))
+	{
+		philo->first_fork = &forks[philo->index];
+		philo->second_fork = &forks[(philo->index + 1) % forks_nb];
+	}
+}
+
 t_fork	*init_forks(t_data *d)
 {
 	t_fork	*forks;
@@ -19,13 +33,12 @@ t_fork	*init_forks(t_data *d)
 
 	forks = malloc(sizeof(t_fork) * d->philos_nb);
 	if (!forks)
-		exit_philo("malloc", &d);
+		exit_program("malloc", &d);
 	i = 0;
 	while (i < d->philos_nb)
 	{
 		forks[i].index = i;
-		forks[i].state = F_FREE;
-		create_mutex(&forks[i].lock, d);
+		mutex_do(INIT, &forks[i].lock, d);
 		i++;
 	}
 	return (forks);
@@ -35,25 +48,22 @@ t_philo	*init_philos(t_data *d)
 {
 	t_philo	*philos;
 	int		i;
-	int		prev_fork_index;
 
 	philos = malloc(sizeof(t_philo) * d->philos_nb);
 	if (!philos)
-		exit_philo("malloc", &d);
+		exit_program("malloc", &d);
 	i = 0;
 	while (i < d->philos_nb)
 	{
+		mutex_do(INIT, &philos[i].lock, d);
+		mutex_do(INIT, &philos[i].priority_lock, d);
 		philos[i].index = i;
 		philos[i].id = i + 1;
-		philos[i].action = A_THINKING;
-		philos[i].left_fork = &d->forks[i];
-		prev_fork_index = i - 1;
-		if (prev_fork_index < 0)
-			prev_fork_index = d->philos_nb - 1;
-		philos[i].right_fork = &d->forks[prev_fork_index];
-		philos[i].last_meal_time = current_time();
-		philos[i].meals_done = 0;
-		create_thread(&philos[i]);
+		philos[i].data = d;
+		set_long(&philos[i].last_meal_time, O_NOTINITYET , &philos[i].lock, d);
+		set_long(&philos[i].meals_done, 0, &philos[i].lock, d);
+		set_long(&philos[i].priority, O_NOTINITYET, &philos[i].priority_lock, d);
+		assign_forks_to_philo(d->forks, &philos[i]);
 		i++;
 	}
 	return (philos);
@@ -65,18 +75,20 @@ t_data	*init_data(char **args)
 
 	d = malloc(sizeof(t_data));
 	if (!d)
-		exit_philo("malloc", &d);
-	d->start_time = current_time();
-	d->forks = NULL;
-	d->philos = NULL;
+		exit_program_init("malloc", &d);
+	mutex_do(INIT, &d->lock, d);
+	mutex_do(INIT, &d->print_lock, d);
+	d->stop_simulation = false;
 	d->philos_nb = str_to_uint(args[1], d);
-	d->eat_time = str_to_uint(args[2], d);
-	d->sleep_time = str_to_uint(args[3], d);
-	d->starve_time = str_to_uint(args[4], d);
+	d->time_to_die = str_to_uint(args[2], d) * 1000;
+	d->time_to_eat = str_to_uint(args[3], d) * 1000;
+	d->time_to_sleep = str_to_uint(args[4], d) * 1000;
 	d->meals_per_philo = O_NOMEALSLIMIT;
 	if (args[5])
 		d->meals_per_philo = str_to_uint(args[5], d);
-	create_mutex(&d->death_lock, d);
-	create_mutex(&d->print_lock, d);
+	set_long(&d->philos_ready, 0, &d->lock, d);
+	set_long(&d->start_time, O_NOTINITYET, &d->lock, d);
+	d->forks = init_forks(d);
+	d->philos = init_philos(d);
 	return (d);
 }

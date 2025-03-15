@@ -29,7 +29,6 @@ void	free_philos(t_philo **philos)
 	ft_free((void **)philos);
 }
 
-
 void	free_forks(t_fork **forks)
 {
 	if (!forks || !*forks)

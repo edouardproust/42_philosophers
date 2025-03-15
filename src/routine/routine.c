@@ -12,14 +12,55 @@
 
 #include "philo.h"
 
-void    *routine_handler(void *philo_ptr)
+void    *philosopher_routine(void *philo_ptr)
 {
 	t_philo *philo;
+	t_data 	*d;
 
 	philo = (t_philo *)philo_ptr;
-	printf("routine started by philo %d\n", philo->id); //DEBUG
+	wait_simulation_started(philo);
+	d = philo->data;
+	set_long(&philo->last_meal_time, current_time_us(d), &philo->lock, d);
+	if (d->philos_nb == 1)
+		put_action(TAKE_FIRST_FORK, philo);
+	while(!simulation_finished(philo->data))
+	{
+		if (d->philos_nb > 1)
+		{
+			if (philo->meals_done > 0)
+				wait_philo_turn(philo);
+			do_eat(philo);
+			do_sleep(philo);
+			do_think(philo);
+		}
+		wait_action(10, philo);
+	}
+	return (NULL);
+}
 
-	wait(philo->id * 1000);
-	printf("philo %d: end\n", philo->id);
+void    *monitoring_routine(void *data_ptr)
+{
+	t_data	*d;
+	t_philo	*philo;
+	int		i;
+
+	d = (t_data *)data_ptr;
+	wait_all_philos_ready(d);
+	while (!simulation_finished(d))
+	{
+		i = 0;
+		while (i < d->philos_nb)
+		{
+			philo = &d->philos[i];
+			if (philo_finished_meals(philo) || philo_starved(philo))
+			{
+				set_bool(&d->stop_simulation, true, &d->lock, d);
+				break ;
+			}
+			update_priority(&d->philos[i]);
+			i++;
+		}
+		wait(10, d);
+	}
 	return (NULL);
 }

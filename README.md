@@ -17,22 +17,52 @@
 
 ## Usage
 
-**Run the program with the following command:**
-```bash
-./philo philosophers time_to_die time_to_eat time_to_sleep [meals_per_philosopher]
+**Compile with:**
 ```
-**Params:**
+$ make
+```
+
+**Then run the program:**
+```bash
+$ ./philo philosophers time_to_die time_to_eat time_to_sleep [meals_per_philosopher]
+```
+Params:
 - `philosophers`: The number of philosophers (and also the number of chopsticks).
 - `time_to_die` (in milliseconds): If a philosopher didn’t start eating *time_to_die* milliseconds since the beginning of their last meal or the beginning of the simulation, they die.
 - `time_to_eat` (in milliseconds): The time it takes for a philosopher to eat. During that time, they will need to hold two chopsticks.
 - `time_to_sleep` (in milliseconds): The time a philosopher will spend sleeping. 
 - `meals_per_philosopher` (optional argument): The number of meals per philosopher before the simulation stops. If not specified, the simulation stops when a philosopher dies. 
 
-**Example:**
+Example:
 ```
-./philo 5 800 200 200 7
+$ ./philo 5 800 200 200 7
 ```
 This command will start a simulation with 5 philosophers, where each philosopher must eat 7 times before the program ends.
+
+**Stress-test (test with a fully-loaded CPU):**
+```
+$ stress --cpu $(nproc) --timeout 60s
+$ ./philo 5 800 200 200 7
+```
+
+**Valgrind test:**
+
+Please note that signals handling (eg. SIGINT) is not asked for this project.
+```
+$ valgrind --tool=helgrind ./philo 2 310 200 400
+```
+
+**Run in DEBUG mode:**
+
+The debug mode display mode informations about the diner. To use it, simply set `DEBUG_MODE` to `1` in `inc/philo.h`:
+```
+# define DEBUG_MODE 0 // -> Set to 1
+```
+Save the file and recompile the program with `$ make`.
+
+**Visualize the output**
+
+Access the visualizer for the Dining Philosophers problem [here](https://nafuka11.github.io/philosophers-visualizer-v2/).
 
 ## Constraints
 
@@ -66,4 +96,4 @@ This command will start a simulation with 5 philosophers, where each philosopher
 - `free`
 - `write`
 - `usleep`
-- `gettimeofday` 
+- `gettimeofday`

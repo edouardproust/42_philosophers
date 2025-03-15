@@ -12,11 +12,9 @@
 
 #include "philo.h"
 
-void	exit_philo(char *error_msg, t_data **d)
+void	exit_program_init(char *error_msg, t_data **d)
 {
-	printf("philo: %s error\n", error_msg);
-	free_forks(&(*d)->forks);
-	free_philos(&(*d)->philos);
+	printf("philo: %s\n", error_msg);
 	free_data(d);
 	exit(EXIT_FAILURE);
 }
@@ -27,6 +25,16 @@ void	exit_on_inval_arg(char *error_msg, char *wrong_arg, t_data **d)
 
 	err_prefix = "Invalid argument";
 	printf("%s: %s: %s\n", err_prefix, wrong_arg, error_msg);
+	free_data(d);
+	exit(EXIT_FAILURE);
+}
+
+void	exit_program(char *error_msg, t_data **d)
+{
+	printf("philo: %s\n", error_msg);
+	destroy_mutexes(*d);
+	free_forks(&(*d)->forks);
+	free_philos(&(*d)->philos);
 	free_data(d);
 	exit(EXIT_FAILURE);
 }

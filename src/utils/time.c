@@ -13,31 +13,70 @@
 #include "philo.h"
 
 /**
- * Sleep for `ms` milliseconds.
+ * Wait for `time` micro-seconds, and stop if the routine has finished.
  */
-void	wait(int ms)
+void	wait_action(long time, t_philo *philo)
 {
-	usleep(ms * 1000L);
+	long	start;
+	long	now;
+
+	start = current_time_us(philo->data);
+	now = start;
+	while (now - start < time)
+	{
+		if (simulation_finished(philo->data))
+			return ;
+		if (time - now + start > 2000)
+			usleep(time / 2);
+		else
+			usleep(1);
+		now = current_time_us(philo->data);
+	}
 }
 
 /**
- * Get the current time in milliseconds.
+ * Wait for `time` micro-seconds.
  */
-long	current_time(void)
+void	wait(long time_us, t_data *d)
+{
+	long	start;
+	long	now;
+
+	start = current_time_us(d);
+	now = start;
+	while (now - start < time_us)
+	{
+		if (time_us - now + start > 2000)
+			usleep(time_us / 2);
+		else
+			usleep(1);
+		now = current_time_us(d);
+	}
+}
+
+/**
+ * Get the current time in micro-seconds (us).
+ */
+long	current_time_us(t_data *d)
 {
 	struct timeval	now;
 
-	gettimeofday(&now, NULL);
-	return (now.tv_sec * 1000L + now.tv_usec / 1000);
+	if (gettimeofday(&now, NULL) != 0)
+		exit_program("Error: current_time: gettimeofday failed\n", &d);
+	return (now.tv_sec * 1000000L + now.tv_usec);
 }
 
 /**
  * Get the interval in milliseconds since the program started.
  */
-long	get_timestamp(t_data *d)
+long	get_timestamp_ms(t_data *d)
 {
 	long	now;
+	long	simul_start;
 
-	now = current_time();
-	return (now - d->start_time);
+	now = current_time_us(d);
+	simul_start = get_long(&d->start_time, &d->lock, d);
+	if (simul_start == O_NOTINITYET)
+		return (O_NOTINITYET);
+	return ((now - simul_start) / 1000);
 }
