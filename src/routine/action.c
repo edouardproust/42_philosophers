@@ -15,17 +15,18 @@
 void	do_eat(t_philo *philo)
 {
 	take_forks(philo);
-	philo->last_meal_time = current_time_us(philo->data);
+	increment_meals_count(philo);
 	put_action(EAT, philo);
-	wait_us(philo->data->time_to_eat, philo->data);
+	set_long(&philo->last_meal_time, current_time_us(philo->data),
+		&philo->lock, philo->data);
+	wait_action(philo->data->time_to_eat, philo);
 	release_forks(philo);
-	philo->meals_done++;
 }
 
 void	do_sleep(t_philo *philo)
 {
 	put_action(SLEEP, philo);
-	wait_us(philo->data->time_to_sleep, philo->data);
+	wait_action(philo->data->time_to_sleep, philo);
 }
 
 void	do_think(t_philo *philo)

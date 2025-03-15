@@ -54,17 +54,21 @@ void	thread_do(t_threadop op, pthread_t *thread, void *(*fn)(void *),
 		exit_program("thread_do: invalid op argument", &d);
 }
 
-void	join_philo_threads(t_data *d)
+void	join_threads(t_data *d)
 {
-	int	status;
 	int	i;
 
 	i = 0;
 	while (i < d->philos_nb)
 	{
-		status = pthread_join(d->philos[i].thread, NULL);
-		handle_thread_error(status, JOIN, d);
-		printf("%ld 🔵 philo %d: end 🏁\n", get_timestamp_ms(d), d->philos[i].id); //DEBUG
+		thread_do(JOIN, &d->philos[i].thread, NULL, d);
+		if (DEBUG_MODE)
+			printf("%ld\t%d thread join 🔴\n",
+				get_timestamp_ms(d), d->philos[i].id);
 		i++;
 	}
+	thread_do(JOIN, &d->monitoring, NULL, d);
+	if (DEBUG_MODE)
+	printf("%ld\tmonitoring thread join 🔴\n", get_timestamp_ms(d));
+
 }

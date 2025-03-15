@@ -13,19 +13,41 @@
 #include "philo.h"
 
 /**
- * Sleep for `time` micro-seconds.
+ * Wait for `time` micro-seconds, and stop if the routine has finished.
  */
-void	wait_us(long time, t_data *d)
+void	wait_action(long time, t_philo *philo)
+{
+	long	start;
+	long	now;
+
+	start = current_time_us(philo->data);
+	now = start;
+	while (now - start < time)
+	{
+		if (simulation_finished(philo->data))
+			return ;
+		if (time - now + start > 2000)
+			usleep(time / 2);
+		else
+			usleep(1);
+		now = current_time_us(philo->data);
+	}
+}
+
+/**
+ * Wait for `time` micro-seconds.
+ */
+void	wait(long time_us, t_data *d)
 {
 	long	start;
 	long	now;
 
 	start = current_time_us(d);
 	now = start;
-	while (now - start < time)
+	while (now - start < time_us)
 	{
-		if (time - now + start > 2000)
-			usleep(time / 2);
+		if (time_us - now + start > 2000)
+			usleep(time_us / 2);
 		else
 			usleep(1);
 		now = current_time_us(d);

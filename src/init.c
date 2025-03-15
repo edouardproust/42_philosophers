@@ -14,28 +14,15 @@
 
 static	void assign_forks_to_philo(t_fork *forks, t_philo *philo)
 {
-	t_fork	*left_fork;
-	t_fork	*right_fork;
+	int	forks_nb;
 
-	if (philo->index == philo->data->philos_nb - 1)
-	{
-		left_fork = &forks[0];
-		right_fork = &forks[philo->data->philos_nb - 1];
-	}
-	else
-	{
-		left_fork = &forks[philo->index];
-		right_fork = &forks[philo->index + 1];
-	}
+	forks_nb = philo->data->philos_nb;
+	philo->first_fork = &forks[(philo->index + 1) % forks_nb];
+	philo->second_fork = &forks[philo->index];
 	if (is_even(philo->index))
 	{
-		philo->first_fork = left_fork;
-		philo->second_fork = right_fork;
-	}
-	else
-	{
-		philo->first_fork = right_fork;
-		philo->second_fork = left_fork;
+		philo->first_fork = &forks[philo->index];
+		philo->second_fork = &forks[(philo->index + 1) % forks_nb];
 	}
 }
 
@@ -71,9 +58,9 @@ t_philo	*init_philos(t_data *d)
 		mutex_do(INIT, &philos[i].lock, d);
 		philos[i].index = i;
 		philos[i].id = i + 1;
-		set_long(&philos[i].last_meal_time, O_NOTINITYET , &philos[i].lock, d);
-		philos[i].meals_done = 0;
 		philos[i].data = d;
+		set_long(&philos[i].last_meal_time, O_NOTINITYET , &philos[i].lock, d);
+		set_long(&philos[i].meals_done, 0, &philos[i].lock, d);
 		assign_forks_to_philo(d->forks, &philos[i]);
 		i++;
 	}
@@ -89,10 +76,11 @@ t_data	*init_data(char **args)
 		exit_program_init("malloc", &d);
 	mutex_do(INIT, &d->lock, d);
 	mutex_do(INIT, &d->print_lock, d);
+	d->stop_simulation = false;
 	d->philos_nb = str_to_uint(args[1], d);
-	d->time_to_die = str_to_uint(args[4], d) * 1000;
-	d->time_to_eat = str_to_uint(args[2], d) * 1000;
-	d->time_to_sleep = str_to_uint(args[3], d) * 1000;
+	d->time_to_die = str_to_uint(args[2], d) * 1000;
+	d->time_to_eat = str_to_uint(args[3], d) * 1000;
+	d->time_to_sleep = str_to_uint(args[4], d) * 1000;
 	d->meals_per_philo = O_NOMEALSLIMIT;
 	if (args[5])
 		d->meals_per_philo = str_to_uint(args[5], d);

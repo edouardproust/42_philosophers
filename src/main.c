@@ -24,10 +24,9 @@ static t_data	*start_simulation(t_data *d)
 	return (d);
 }
 
-static void	stop_simulation(t_data **d)
+static void	clean_simulation(t_data **d)
 {
-	join_philo_threads(*d);
-	thread_do(JOIN, &(*d)->monitoring, NULL, *d);
+	join_threads(*d);
 	destroy_mutexes(*d);
 	free_philos(&(*d)->philos);
 	free_forks(&(*d)->forks);
@@ -46,6 +45,6 @@ int	main(int ac, char **av)
 	}
 	d = init_data(av);
 	start_simulation(d);
-	stop_simulation(&d);
+	clean_simulation(&d);
 	return (EXIT_SUCCESS);
 }

@@ -23,12 +23,17 @@
 # include <stdbool.h> // bool, true, fals
 
 /****************************************/
-/* Defines & Enums                      */
+/* Defines & Enums                     */
 /****************************************/
 
-# define FOO 1337
+# define DEBUG_MODE 1
 # define O_NOTINITYET -1
 # define O_NOMEALSLIMIT -1
+# define FOO 1337
+
+#define BLUE "\033[34m"
+#define BOLD "\033[1m"
+#define RESET "\033[0m"
 
 typedef enum e_mutexop
 {
@@ -47,7 +52,8 @@ typedef enum e_threadop
 
 typedef enum e_action
 {
-	TAKE_FORK,
+	TAKE_FIRST_FORK,
+	TAKE_SECOND_FORK,
 	EAT,
 	SLEEP,
 	THINK,
@@ -76,7 +82,7 @@ typedef struct s_philo
 	t_fork		*first_fork;
 	t_fork		*second_fork;
 	long		last_meal_time;
-	int			meals_done;
+	long		meals_done;
 	t_data		*data;
 	t_thread	thread;
 	t_mutex		lock;
@@ -85,15 +91,15 @@ typedef struct s_philo
 typedef struct s_data
 {
 	int			philos_nb;
-	int			time_to_die;
-	int			time_to_eat;
-	int			time_to_sleep;
-	int			meals_per_philo;
+	long		time_to_die;
+	long		time_to_eat;
+	long		time_to_sleep;
+	long		meals_per_philo;
 	t_philo		*philos;
 	t_fork		*forks;
 	long		philos_ready;
 	long		start_time;
-	bool		simulation_end;
+	bool		stop_simulation;
 	t_mutex		lock;
 	t_mutex		print_lock;
 	t_thread	monitoring;
@@ -108,6 +114,11 @@ t_data	*init_data(char **args);
 /* Routines */
 void    *philosopher_routine(void *philo_ptr);
 void    *monitoring_routine(void *data_ptr);
+void	wait_simulation_started(t_philo *philo);
+void	wait_all_philos_ready(t_data *d);
+bool	philo_starved(t_philo *philo);
+bool	philo_finished_meals(t_philo *philo);
+bool	simulation_finished(t_data *data);
 
 /* Actions */
 void	do_eat(t_philo *philo);
@@ -117,19 +128,21 @@ void	do_die(t_philo *philo);
 void	take_forks(t_philo *philo);
 void	release_forks(t_philo *philo);
 void	put_action(int action_code, t_philo *philo);
+void	wait_action(long time, t_philo *philo);
+void	increment_meals_count(t_philo *philo);
 
 /* Threads */
 void	create_philo_thread(t_philo *philo, void *(*routine_fn)(void *));
 void	thread_do(t_threadop op, pthread_t *thread, void *(*fn)(void *),
 			t_data *d);
-void	join_philo_threads(t_data *d);
+void	join_threads(t_data *d);
 
 /* Mutex */
 void	mutex_do(t_mutexop op, t_mutex *mutex, t_data *d);
 void	destroy_mutexes(t_data *d);
 
 /* Time */
-void	wait_us(long time, t_data *d);
+void	wait(long time_us, t_data *d);
 long	current_time_us(t_data *d);
 long	get_timestamp_ms(t_data *d);
 
