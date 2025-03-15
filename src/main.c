@@ -17,10 +17,10 @@ static t_data	*start_simulation(t_data *d)
 	int		i;
 
 	i = 0;
-	thread_do(CREATE, &d->monitoring, monitoring_routine, d);
 	while (i < d->philos_nb)
 		create_philo_thread(&d->philos[i++], philosopher_routine);
 	set_long(&d->start_time, current_time_us(d), &d->lock, d);
+	thread_do(CREATE, &d->monitoring, monitoring_routine, d);
 	return (d);
 }
 

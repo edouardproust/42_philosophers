@@ -31,9 +31,9 @@
 # define O_NOMEALSLIMIT -1
 # define FOO 1337
 
-#define BLUE "\033[34m"
-#define BOLD "\033[1m"
-#define RESET "\033[0m"
+# define BLUE "\033[1m\033[34m"
+# define RED "\033[1m\033[31m"
+# define RST "\033[0m" // Reset
 
 typedef enum e_mutexop
 {
@@ -60,14 +60,28 @@ typedef enum e_action
 	DIE,
 }	t_action;
 
+typedef enum e_timeunit
+{
+	MS,
+	US,
+}	t_timeunit;
+
+typedef enum e_debugop
+{
+	PHILO_CREATED,
+	PHILO_STARTED,
+	MONIT_CREATED,
+	MONIT_STARTED,
+}	t_debugop;
+
 /****************************************/
 /* Structs                              */
 /****************************************/
 
-typedef struct s_data t_data;
-typedef unsigned int t_bool;
-typedef pthread_t t_thread;
-typedef pthread_mutex_t t_mutex;
+typedef struct s_data	t_data;
+typedef unsigned int	t_bool;
+typedef pthread_t		t_thread;
+typedef pthread_mutex_t	t_mutex;
 
 typedef struct s_fork
 {
@@ -82,7 +96,7 @@ typedef struct s_philo
 	t_fork		*first_fork;
 	t_fork		*second_fork;
 	long		last_meal_time;
-	long		meals_done;
+	int			meals_done;
 	long		priority;
 	t_data		*data;
 	t_thread	thread;
@@ -96,10 +110,9 @@ typedef struct s_data
 	long		time_to_die;
 	long		time_to_eat;
 	long		time_to_sleep;
-	long		meals_per_philo;
+	int			meals_per_philo;
 	t_philo		*philos;
 	t_fork		*forks;
-	long		philos_ready;
 	long		start_time;
 	bool		stop_simulation;
 	t_mutex		lock;
@@ -114,12 +127,11 @@ typedef struct s_data
 t_data	*init_data(char **args);
 
 /* Routines */
-void    *philosopher_routine(void *philo_ptr);
-void    *monitoring_routine(void *data_ptr);
+void	*philosopher_routine(void *philo_ptr);
+void	*monitoring_routine(void *data_ptr);
 void	wait_simulation_started(t_philo *philo);
-void	wait_all_philos_ready(t_data *d);
 bool	philo_starved(t_philo *philo);
-bool	all_meals_done(t_data *d);
+bool	all_philos_finished_meals(t_data *d);
 bool	simulation_finished(t_data *data);
 
 /* Actions */
@@ -132,7 +144,7 @@ void	release_forks(t_philo *philo);
 void	put_action(int action_code, t_philo *philo);
 void	wait_action(long time, t_philo *philo);
 void	increment_meals_count(t_philo *philo);
-long	time_since_last_meal(t_philo *philo);
+long	time_since_last_meal(t_philo *philo, t_timeunit unit);
 
 /* Fairness */
 void	wait_philo_turn(t_philo *philo);
@@ -165,9 +177,11 @@ void	free_forks(t_fork **forks);
 void	free_data(t_data **data);
 
 /* Getters & setters */
+int		get_int(int *value, t_mutex *mutex, t_data *d);
 long	get_long(long *value, t_mutex *mutex, t_data *d);
-void	set_long(long *dest, long value, t_mutex *mutex, t_data *d);
 bool	get_bool(bool *value, t_mutex *mutex, t_data *d);
+void	set_int(int *dest, int value, t_mutex *mutex, t_data *d);
+void	set_long(long *dest, long value, t_mutex *mutex, t_data *d);
 void	set_bool(bool *dest, bool value, t_mutex *mutex, t_data *d);
 
 /* Utils */

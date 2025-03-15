@@ -10,10 +10,11 @@ C_DIR = src
 C_FILES = main.c \
 	init.c \
 	routine/routine.c \
-	routine/routine_utils.c \
+	routine/routine_state.c \
+	routine/routine_wait.c \
 	routine/action.c \
+	routine/action_put.c \
 	routine/action_utils.c \
-	routine/action_utils2.c \
 	routine/fairness.c \
 	utils/exit.c \
 	utils/free.c \
@@ -21,7 +22,8 @@ C_FILES = main.c \
 	utils/time.c \
 	utils/mutex.c \
 	utils/thread.c \
-	utils/get_set.c \
+	utils/get.c \
+	utils/set.c \
 
 SRCS = $(addprefix $(C_DIR)/,$(C_FILES))
 

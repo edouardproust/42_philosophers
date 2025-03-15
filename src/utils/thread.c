@@ -69,6 +69,5 @@ void	join_threads(t_data *d)
 	}
 	thread_do(JOIN, &d->monitoring, NULL, d);
 	if (DEBUG_MODE)
-	printf("%ld\tmonitoring thread join 🔴\n", get_timestamp_ms(d));
-
+		printf("%ld\tmonitoring thread join 🔴\n", get_timestamp_ms(d));
 }

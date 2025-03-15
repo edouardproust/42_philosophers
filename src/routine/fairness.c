@@ -17,36 +17,37 @@
 */
 static bool	is_highest_priority_philo(t_philo *philo)
 {
-   long	highest_priority;
-   long	priority;
-   t_philo	*chosen;
-   t_data	*d;
-   int		i;
+	long	highest_priority;
+	long	priority;
+	t_philo	*chosen;
+	t_data	*d;
+	int		i;
 
-   highest_priority = -1;
-   chosen = NULL;
-   d = philo->data;
-   i = 0;
-   while (i < d->philos_nb)
-   {
-	   priority = get_long(&d->philos[i].priority,
-		   &d->philos[i].priority_lock, d);
-	   if (priority > highest_priority)
-	   {
-		   highest_priority = priority;
-		   chosen = &d->philos[i];
-	   }
-	   i++;
-   }
-   return (chosen == philo);
+	highest_priority = -1;
+	chosen = NULL;
+	d = philo->data;
+	i = 0;
+	while (i < d->philos_nb)
+	{
+		priority = get_long(&d->philos[i].priority,
+				&d->philos[i].priority_lock, d);
+		if (priority > highest_priority)
+		{
+			highest_priority = priority;
+			chosen = &d->philos[i];
+		}
+		i++;
+	}
+	return (chosen == philo);
 }
+
 void	wait_philo_turn(t_philo *philo)
 {
 	while (1)
 	{
 		if (simulation_finished(philo->data)
 			|| is_highest_priority_philo(philo))
-			break;
+			break ;
 		wait_action(10, philo);
 	}
 }
@@ -59,8 +60,8 @@ void	wait_philo_turn(t_philo *philo)
  */
 void	update_priority(t_philo *p)
 {
-	long time_since_meal;
+	long	time_since_meal;
 
-	time_since_meal = time_since_last_meal(p);
+	time_since_meal = time_since_last_meal(p, US);
 	set_long(&p->priority, time_since_meal, &p->priority_lock, p->data);
 }

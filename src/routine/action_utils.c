@@ -30,11 +30,20 @@ void	increment_meals_count(t_philo *philo)
 {
 	long	meals_done;
 
-	meals_done = get_long(&philo->meals_done, &philo->lock, philo->data);
-	set_long(&philo->meals_done, meals_done + 1, &philo->lock, philo->data);
-	if (DEBUG_MODE && (meals_done + 1 == philo->data->meals_per_philo))
-	{
-		printf("%ld\t%d finished meals ✅\n",
-			get_timestamp_ms(philo->data), philo->id);
-	}
+	meals_done = get_int(&philo->meals_done, &philo->lock, philo->data);
+	set_int(&philo->meals_done, meals_done + 1, &philo->lock, philo->data);
+}
+
+long	time_since_last_meal(t_philo *philo, t_timeunit unit)
+{
+	t_data	*d;
+	long	last_meal_time;
+	long	result;
+
+	d = philo->data;
+	last_meal_time = get_long(&philo->last_meal_time, &philo->lock, d);
+	result = current_time_us(d) - last_meal_time;
+	if (unit == MS)
+		return (result / 1000);
+	return (result);
 }
